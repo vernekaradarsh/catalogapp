@@ -150,6 +150,9 @@ JAZZMIN_SETTINGS = {
 
 import os
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]  # Directory for additional static files
+STATIC_ROOT = BASE_DIR / "staticfiles"    # Already present, ensure it’s here
+
 # media (development)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
