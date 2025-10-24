@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Available Catalogues</title>
+  <link rel="stylesheet" href="{% static 'catalogues/style.css' %}">
+</head>
+<body>
+  <header><h1>Available Catalogues</h1></header>
+
+  {% if user.is_authenticated %}
+    {% if is_smart_user %}
+      <p><a href="{% url 'upload_catalogue' %}">Upload a New Catalogue</a></p>
+    {% endif %}
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+  {% else %}
+    <p><a href="{% url 'login' %}">Login</a></p>
+  {% endif %}
+
+  {% if catalogues %}
+    <ul>
+      {% for catalogue in catalogues %}
+        <li>{{ catalogue.title }} — <a href="{{ catalogue.pdf.url }}" target="_blank">View PDF</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No catalogues available yet.</p>
+  {% endif %}
+</body>
+</html>
