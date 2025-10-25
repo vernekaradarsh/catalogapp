@@ -35,11 +35,12 @@ pipeline {
             steps {
                 echo "🧪 Running tests and generating coverage..."
                 sh '''
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage run manage.py test
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage html
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m
                 '''
+
             }
         }
 
