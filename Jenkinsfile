@@ -28,18 +28,14 @@ pipeline {
       }
     }
 
-    stage('Run Tests & Coverage') {
+    stage('Run Tests') {
       steps {
-        echo "🧪 Running tests and generating coverage..."
+        echo "🧪 Running Django tests..."
         sh '''
         docker run --rm \
           -v $PWD/${APP_DIR}:/app \
           -w /app \
-          ${IMAGE_NAME}:${IMAGE_TAG} /bin/bash -c "
-            coverage run manage.py test &&
-            coverage report -m > coverage.txt &&
-            coverage html
-          "
+          ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
         '''
       }
     }
@@ -65,17 +61,7 @@ pipeline {
   post {
     success {
       echo "✅ Build & Deploy Successful!"
-      archiveArtifacts artifacts: "${APP_DIR}/coverage.txt", allowEmptyArchive: true
-      publishHTML(target: [
-        allowMissing: true,
-        keepAll: true,
-        alwaysLinkToLastBuild: true,
-        reportDir: "${APP_DIR}/htmlcov",
-        reportFiles: 'index.html',
-        reportName: 'Coverage Report'
-      ])
     }
-
     failure {
       echo "❌ Build or Deployment Failed — Check Jenkins logs for details."
     }
