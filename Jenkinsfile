@@ -18,14 +18,17 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+       stage('Build Docker Image') {
             steps {
-            script {
-                def app = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                app.tag("${IMAGE_NAME}:latest")
-                    }
+                script {
+                def safeImageName  = "${IMAGE_NAME}".replaceAll(/[^a-zA-Z0-9_.-]/, '')
+                def safeImageTag   = "${IMAGE_TAG}".replaceAll(/[^a-zA-Z0-9_.-]/, '')
+                def app = docker.build("${safeImageName}:${safeImageTag}")
+                app.tag("${safeImageName}:latest")
+                }
             }
         }
+
 
         stage('Run Tests & Coverage') {
             steps {
