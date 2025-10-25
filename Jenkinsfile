@@ -58,17 +58,23 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            echo "✅ Build & Deploy Successful!"
-            publishHTML([
-                reportDir: 'htmlcov',
-                reportFiles: 'index.html',
-                reportName: 'Coverage Report'
-            ])
-        }
-        failure {
-            echo "❌ Build or Deployment Failed — Check Jenkins logs for details."
-        }
+  post {
+    success {
+        echo "✅ Build & Deploy Successful!"
+
+        publishHTML(target: [
+            allowMissing: true,
+            keepAll: true,
+            alwaysLinkToLastBuild: true,
+            reportDir: 'htmlcov',
+            reportFiles: 'index.html',
+            reportName: 'Coverage Report'
+        ])
     }
+
+    failure {
+        echo "❌ Build or Deployment Failed — Check Jenkins logs for details."
+    }
+}
+
 }
