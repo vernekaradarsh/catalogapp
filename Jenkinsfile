@@ -18,20 +18,18 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') 
-        {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    def safeImageName = 'catalogapp'   // Use only lowercase letters, digits, and separators
-                    def safeImageTag  = 'optimized'    // Letters, digits, dash, underscore or dot
+                def safeImageName = 'catalogapp'   // Must match Docker naming rules
+                def safeImageTag  = 'optimized'    // Must match Docker tag rules
 
-                    def app = docker.build("${safeImageName}:${safeImageTag}")
-                    app.tag("${safeImageName}:latest")
+                def app = docker.build(safeImageName)  // Only the image name here
+                app.tag(safeImageTag)                  // Apply tag separately
+                app.tag('latest')                      // Optional: tag as latest
                 }
             }
         }
-
-
 
         stage('Run Tests & Coverage') {
             steps {
