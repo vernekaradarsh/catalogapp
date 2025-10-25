@@ -18,16 +18,19 @@ pipeline {
             }
         }
 
-       stage('Build Docker Image') {
+        stage('Build Docker Image') 
+        {
             steps {
                 script {
-                def safeImageName  = "${IMAGE_NAME}".replaceAll(/[^a-zA-Z0-9_.-]/, '')
-                def safeImageTag   = "${IMAGE_TAG}".replaceAll(/[^a-zA-Z0-9_.-]/, '')
-                def app = docker.build("${safeImageName}:${safeImageTag}")
-                app.tag("${safeImageName}:latest")
+                    def safeImageName = 'catalogapp'   // Use only lowercase letters, digits, and separators
+                    def safeImageTag  = 'optimized'    // Letters, digits, dash, underscore or dot
+
+                    def app = docker.build("${safeImageName}:${safeImageTag}")
+                    app.tag("${safeImageName}:latest")
                 }
             }
         }
+
 
 
         stage('Run Tests & Coverage') {
