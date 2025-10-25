@@ -23,7 +23,6 @@ pipeline {
                 script {
                 def safeImageName = 'catalogapp'   // Must match Docker naming rules
                 def safeImageTag  = 'optimized'    // Must match Docker tag rules
-
                 def app = docker.build(safeImageName)  // Only the image name here
                 app.tag(safeImageTag)                  // Apply tag separately
                 app.tag('latest')                      // Optional: tag as latest
@@ -32,15 +31,15 @@ pipeline {
         }
 
         stage('Run Tests & Coverage') {
+           stage('Run Tests & Coverage') {
             steps {
                 echo "🧪 Running tests and generating coverage..."
                 sh '''
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage run manage.py test
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage html
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m > coverage.txt
                 '''
-
+                }
             }
         }
 
