@@ -7,6 +7,7 @@ pipeline {
     EC2_USER = "ubuntu"
     EC2_IP = "your-ec2-ip"   // Replace with your actual EC2 public IP or DNS
     CREDENTIALS_ID = "ec2-ssh"
+    APP_DIR = "catalogapp"   // Subdirectory where manage.py lives
   }
 
   stages {
@@ -32,7 +33,7 @@ pipeline {
         echo "🧪 Running tests and generating coverage..."
         sh '''
         docker run --rm \
-          -v $PWD:/app \
+          -v $PWD/${APP_DIR}:/app \
           -w /app \
           ${IMAGE_NAME}:${IMAGE_TAG} /bin/bash -c "
             coverage run manage.py test &&
@@ -64,12 +65,12 @@ pipeline {
   post {
     success {
       echo "✅ Build & Deploy Successful!"
-      archiveArtifacts artifacts: 'coverage.txt', allowEmptyArchive: true
+      archiveArtifacts artifacts: "${APP_DIR}/coverage.txt", allowEmptyArchive: true
       publishHTML(target: [
         allowMissing: true,
         keepAll: true,
         alwaysLinkToLastBuild: true,
-        reportDir: 'htmlcov',
+        reportDir: "${APP_DIR}/htmlcov",
         reportFiles: 'index.html',
         reportName: 'Coverage Report'
       ])
