@@ -30,14 +30,15 @@ pipeline {
     stage('Run Tests') {
         steps {
             echo "🧪 Running Django tests..."
-            sh '''
+           sh '''
             docker run --rm \
-            -v $PWD:/app \
-            -w /app/catalogapp \
-            ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
+              -v $PWD:/app \
+              -w /app \
+              catalogapp:optimized python3 manage.py test catalogues -v 2
             '''
         }
     }
+     
     stage('Deploy to EC2') {
       steps {
         echo "🚀 Deploying to AWS EC2..."
