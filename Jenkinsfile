@@ -30,8 +30,8 @@ pipeline {
             }
         }
 
+
         stage('Run Tests & Coverage') {
-           stage('Run Tests & Coverage') {
             steps {
                 echo "🧪 Running tests and generating coverage..."
                 sh '''
@@ -40,8 +40,8 @@ pipeline {
                 docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m > coverage.txt
                 '''
                 }
-            }
         }
+
 
         stage('Deploy to EC2') {
             steps {
