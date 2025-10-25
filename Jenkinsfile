@@ -32,14 +32,16 @@ pipeline {
 
 
         stage('Run Tests & Coverage') {
-            steps {
+        steps {
                 echo "🧪 Running tests and generating coverage..."
                 sh '''
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage run manage.py test
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m > coverage.txt
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} /bin/bash -c "
+                coverage run manage.py test &&
+                coverage report -m > coverage.txt &&
+                coverage html
+                "
                 '''
-                }
+            }
         }
 
 
