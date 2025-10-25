@@ -7,7 +7,6 @@ pipeline {
     EC2_USER = "ubuntu"
     EC2_IP = "your-ec2-ip"   // Replace with your actual EC2 public IP or DNS
     CREDENTIALS_ID = "ec2-ssh"
-    APP_DIR = "catalogapp"   // Subdirectory where manage.py lives
   }
 
   stages {
@@ -33,7 +32,7 @@ pipeline {
         echo "🧪 Running Django tests..."
         sh '''
         docker run --rm \
-          -v $PWD/${APP_DIR}:/app \
+          -v $PWD:/app \
           -w /app \
           ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
         '''
