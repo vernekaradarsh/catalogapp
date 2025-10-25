@@ -1,47 +1,74 @@
 pipeline {
     agent any
+
+    environment {
+        IMAGE_NAME = "catalogapp"
+        IMAGE_TAG = "optimized"  // Clear versioning tag
+        EC2_USER = "ubuntu"
+        EC2_IP = "your-ec2-ip"   // 🔁 Replace with your actual EC2 public IP or DNS
+        CREDENTIALS_ID = "ec2-ssh"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/yourusername/catalogapp.git'
+                echo "🔍 Checking out source code..."
+                git url: 'https://github.com/vernekaradarsh/catalogapp.git', branch: 'main'
             }
         }
-        stage('Build Image') {
+
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t catalogapp:latest .'
-            }
-        }
-        stage('Test in Container') {
-            steps {
+                echo "🐳 Building Docker image..."
                 sh '''
-                docker run --rm catalogapp:latest python manage.py test catalogues -v
-                docker run --rm catalogapp:latest coverage run manage.py test
-                coverage html
-                coverage report -m
+                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                 '''
             }
         }
+
+        stage('Run Tests & Coverage') {
+            steps {
+                echo "🧪 Running tests and generating coverage..."
+                sh '''
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage run manage.py test
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage html
+                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} coverage report -m
+                '''
+            }
+        }
+
         stage('Deploy to EC2') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh', keyFileVariable: 'KEY')]) {
+                echo "🚀 Deploying to AWS EC2..."
+                withCredentials([sshUserPrivateKey(credentialsId: "${CREDENTIALS_ID}", keyFileVariable: 'KEY')]) {
                     sh '''
-                    ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@your-ec2-ip "
-                    docker pull catalogapp:latest &&
-                    docker stop app || true &&
-                    docker rm app || true &&
-                    docker run -d --name app -p 8000:8000 -v ~/media:/app/media catalogapp:latest &&
-                    sudo nginx -s reload"
+                    ssh -i $KEY -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
+                        docker pull ${IMAGE_NAME}:latest || true &&
+                        docker stop app || true &&
+                        docker rm app || true &&
+                        docker run -d --name app -p 8000:8000 -v ~/media:/app/media ${IMAGE_NAME}:latest &&
+                        sudo systemctl restart nginx
+                    "
                     '''
                 }
             }
         }
     }
+
     post {
         success {
-            publishHTML([reportDir: 'htmlcov', reportFiles: 'index.html', reportName: 'Coverage Report'])
+            echo "✅ Build & Deploy Successful!"
+            publishHTML([
+                reportDir: 'htmlcov',
+                reportFiles: 'index.html',
+                reportName: 'Coverage Report'
+            ])
         }
         failure {
-            echo 'Build Failed — check Jenkins logs'
+            echo "❌ Build or Deployment Failed — Check Jenkins logs for details."
         }
     }
 }
