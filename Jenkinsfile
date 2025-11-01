@@ -34,7 +34,7 @@ pipeline {
         docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python3 manage.py test catalogues -v 2
         '''
       }
-}
+    }
      
     stage('Deploy to EC2') {
       steps {
