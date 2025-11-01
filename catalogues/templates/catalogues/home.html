@@ -1,25 +1,99 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Catalogue Portal</title>
-  <link rel="stylesheet" href="{% static 'catalogues/style.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue Portal</title>
+    <link rel="stylesheet" href="{% static 'catalogues/style.css' %}">
+    <!-- Optional: Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .live-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin: 15px auto;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .btn-custom {
+            display: block;
+            width: 220px;
+            margin: 12px auto;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .icon { margin-right: 8px; }
+    </style>
 </head>
 <body>
-  <header><h1>Catalogue Portal</h1></header>
-  <h1 style="color: green;">LIVE ON AWS! 🚀</h1>
 
-  {% if user.is_authenticated %}
-    <p>Hello, <strong>{{ user.username }}</strong>!</p>
-    {% if is_smart_user %}
-      <p><a href="{% url 'upload_catalogue' %}">Upload New Catalogue</a></p>
+    <h1>Catalogue Portal</h1>
+
+    <!-- LIVE ON AWS BADGE -->
+    <div class="live-badge">
+        LIVE ON AWS!
+    </div>
+
+    {% if user.is_authenticated %}
+        <p style="text-align:center; font-size:1.2rem; color:#444;">
+            Hello, <strong>{{ user.username }}</strong>!
+        </p>
+
+        <div style="max-width:300px; margin:0 auto;">
+            {% if is_smart_user %}
+                <a href="{% url 'upload_catalogue' %}" class="btn-custom btn-success">
+                    Upload New Catalogue
+                </a>
+            {% endif %}
+
+            <a href="{% url 'catalogue_list' %}" class="btn-custom">
+                View Catalogues
+            </a>
+
+            <a href="{% url 'logout' %}" class="btn-custom btn-danger">
+                Logout
+            </a>
+        </div>
+
+    {% else %}
+        <p style="text-align:center; font-size:1.2rem; color:#666;">
+            Welcome, guest!
+        </p>
+
+        <div style="max-width:300px; margin:0 auto;">
+            <a href="{% url 'catalogue_list' %}" class="btn-custom">
+                View Catalogues
+            </a>
+            <a href="{% url 'login' %}" class="btn-custom" style="background:#6c757d;">
+                Login (Admin/SmartUser)
+            </a>
+        </div>
     {% endif %}
-    <p><a href="{% url 'catalogue_list' %}">View Catalogues</a></p>
-    <p><a href="{% url 'logout' %}">Logout</a></p>
-  {% else %}
-    <p>Welcome, guest. <a href="{% url 'catalogue_list' %}">View Catalogues</a></p>
-    <p><a href="{% url 'login' %}">Login (Admin/SmartUser)</a></p>
-  {% endif %}
+
 </body>
 </html>
