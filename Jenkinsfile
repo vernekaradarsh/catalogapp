@@ -38,21 +38,23 @@ pipeline {
      
     stage('Deploy to EC2') {
       steps {
-        echo "🚀 Deploying to AWS EC2..."
-        withCredentials([sshUserPrivateKey(credentialsId: "${CREDENTIALS_ID}", keyFileVariable: 'KEY')]) {
+        sshagent(['ec2-ssh']) {
           sh '''
-          ssh -i $KEY -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
-            docker pull ${IMAGE_NAME}:latest || true &&
-            docker stop app || true &&
-            docker rm app || true &&
-            docker run -d --name app -p 8000:8000 -v ~/media:/app/media ${IMAGE_NAME}:latest &&
-            sudo systemctl restart nginx
-          "
+            ssh -o StrictHostKeyChecking=no ubuntu@13.232.196.111 "
+              cd ~/catalogapp &&
+              git pull &&
+              docker build -t catalogapp . &&
+              docker stop app || true &&
+              docker rm app || true &&
+              docker run -d --name app -p 8000:8000 -v ~/media:/app/media catalogapp &&
+              sudo nginx -s reload
+            "
           '''
         }
       }
     }
-  }
+
+}
 
   post {
     success {
